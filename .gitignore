@@ -1,3 +1,8 @@
 node_modules/
 *.log
 .DS_Store
+
+node_modules/
+tools/matrix/runtimes/
+tools/matrix/scratch/
+tools/matrix/*.boot.log

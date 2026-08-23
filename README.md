@@ -70,6 +70,37 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/setup/dismiss-onboarding -d '{}'
 
 本包无构建脚本（无 prepare/postinstall），不会被 pnpm allowBuilds 拦截。
 
+## 历史版本兼容性矩阵（v0.3.0 实测）
+
+对 npm 上**全部可安装**的 dsh 历史版本逐一做了「该版核心 × 本插件」激活金丝雀
+（隔离环境、随机端口、HTTP 探活、插件路由响应验证）。工具与原始数据见
+`tools/matrix-test.mjs` 与 `tools/matrix/`。
+
+| dsh 版本 | 验证通过的启动命令 | 插件激活 | `plugin add` 子命令 | `--dump-config` |
+|---|---|---|---|---|
+| 0.0.1-rc.5 | `dsh --profile web --port <P>` | ✓ | ✓ | ✓ |
+| 0.1.0-rc.2 | `dsh --profile web --host .. --port .. --no-open` | ✓ | ✓ | ✓ |
+| 0.1.0-rc.3 | 同上 | ✓ | ✓ | ✓ |
+| 0.1.0-rc.6 | `dsh web --host .. --port .. --no-open`（`--profile` 形状同样可用） | ✓ | ✓ | ✓ |
+| 0.1.0-rc.7 | 同上 | ✓ | ✓ | ✓ |
+| 0.1.0-rc.8 | 同上 | ✓ | ✓ | ✓ |
+| 0.1.1-rc.1 | 同上 | ✓ | ✓ | ✓ |
+| 0.1.1-rc.2 | 同上（当前 npm latest） | ✓ | ✓ | ✓ |
+| 0.0.1-rc.1 / rc.2 | 不适用——上游已撤包（依赖 `dsh-agent-tool-mode` 404），任何人都无法安装 | – | – | – |
+
+### 启动命令自适应
+
+不同版本的 CLI 形状有差异（`web` 位置参数 vs `--profile web`；最老的 rc.5 没有
+`--no-open`）。插件的处理方式：
+
+- **零配置捕获**：插件进程自己的 `process.argv` 就是当前 dsh 的真实启动参数，
+  引导时把实际主机/端口替换成 `{host}`/`{port}` 占位符存入 `last-good.json` 的
+  `bootArgs` 模板——任何版本的正确形状都会被自动记录；
+- **全链路使用模板**：重启助手、桌面启动器、核心升级金丝雀、插件安装金丝雀全部
+  从同一模板解析启动参数；
+- **手动修正入口**：`POST /boot-shape/set {"args":["--profile","web","--host","{host}","--port","{port}"]}`
+  会先做隔离金丝雀验证再保存；`GET /boot-shape/current` 查看当前形状。
+
 ## HTTP API（全部在 `/dsh-safe-launch/` 前缀下）
 
 | 端点 | 入参 | 行为 |
