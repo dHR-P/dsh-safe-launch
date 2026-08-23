@@ -44,6 +44,18 @@ dsh plugin --profile web add github:dHR-P/dsh-safe-launch
 
 长任务（test-candidate / install-plugin / update-plugins / manifest/verify）立即返回 `{ok, jobId}`，用 `/job` 轮询；同一时刻仅允许一个重任务。
 
+## 核心版本升级流程（v0.1.2，严格同意制）
+
+1. **启动**：永远按 `last-good.json` 里已验证的版本启动，完全不碰 npm 最新版；
+2. **提示**：启动约 30 秒后后台查一次 npm（环境变量 `DSH_SL_NO_AUTO_CHECK=1` 可关闭），
+   发现有新版本只写 NOTICE + 日志，并把 `coreUpdatePending` 暴露在 `/status`——不做任何下载；
+3. **同意后测试**：调用 `POST /test-candidate {}` 才开始后台下载到独立 `runtime/<版本>`，
+   并用 junction 隔离启动做金丝雀验证——**新版核心 × 当前全部插件的真实组合**
+   （静态预检 + HTTP 就绪 + 浸泡 + 进程身份 + 致命错误扫描），当前实例全程无感；
+4. **采用**：通过才写入新配置；失败自动丢弃候选并保持旧配置。是否立即重启始终由用户决定。
+
+PS 桌面启动器同规则：检测到新版本先弹确认框征得同意，同意后才下载测试。
+
 ## 清单看门狗（v0.1.1）
 
 **问题**：插件端点只是"正确的路"，拦不住有人（或 AI）直接对 profile 跑 `pnpm add` / `dsh plugin add` 绕过兼容性测试。
