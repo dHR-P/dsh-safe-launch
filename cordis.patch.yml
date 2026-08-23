@@ -1,0 +1,6 @@
+# dsh-safe-launch bundle patch: registers the safe-launch host service row.
+# Installed through `dsh plugin --profile web add ...`, which appends this
+# package to dsh.profile.bundles so this patch joins the layer stack.
+- insert:
+    - id: safe-launch
+      name: 'dsh-safe-launch'
