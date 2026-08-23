@@ -14,15 +14,42 @@ English: a DSH plugin providing last-good boot config, canary-tested updates, an
 | 插件更新回归 | 插件批量更新同样先备份清单 → 更新 → 金丝雀回归 → 通过提交 / 失败回滚 |
 | 安全重启 | 分离式 helper 进程接管「停旧-起新-验活」，父进程无需自尽 |
 
-## 安装（符合 dsh 插件发布要求）
+## 安装与首次使用（v0.2.0 起，与普通插件无异）
 
 ```sh
 dsh plugin --profile web add github:dHR-P/dsh-safe-launch
 ```
 
-或在 Web GUI 中通过 dsh-git-sync 的插件安装入口选择本仓库。
+或通过 Web GUI 的插件安装入口选择本仓库。**安装后重启一次 DSH 即完成全部初始化**——
+插件会自动从正在运行的实例引导出「成功启动配置」，不需要任何额外步骤。
 
-要求：Windows（robocopy/junction/netstat 路径）、pnpm 在 PATH、Node ≥ 20。
+重启后插件处于 `pending` 引导状态：`/status` 会返回 `onboarding:{needed:true}`，
+日志提示一次。此时它是纯增强插件（看门狗/升级提示/兼容性安装全部可用）。
+
+### 授权接管（可选，需用户明确同意）
+
+在任意 AI 会话里让助手询问你，或直接调用：
+
+```sh
+# 同意接管：创建桌面「DSH 安全启动」快捷方式 + 写入 AI 助手安装安全约定
+curl -s http://127.0.0.1:3080/dsh-safe-launch/setup/desktop-launcher -d '{}'
+
+# 拒绝：保持纯插件模式，不再提示
+curl -s http://127.0.0.1:3080/dsh-safe-launch/setup/dismiss-onboarding -d '{}'
+```
+
+同意后：桌面快捷方式按「上次成功配置」启动 DSH（90 秒未就绪自动恢复最近清单快照重试一次）；
+`~/.dsh/AGENTS.md` 写入接管约定，此后 AI 助手装插件一律走本插件的端点。
+
+## 支持的 DSH 版本
+
+| 项目 | 要求 |
+|---|---|
+| 测试通过的 dsh 版本 | **0.1.1-rc.2**（npm latest，2026-08 发布线） |
+| 依赖的宿主接口 | `@deepseek-ai/dsh-host-webserver ^0.1.1-rc.2`（peerDependencies） |
+| 其他版本 | 未在更早版本上测试；bundle patch 机制自 dsh 0.1.x 起稳定，理论上 0.1.x 系列可用，欢迎反馈 |
+| 运行环境 | Windows（robocopy/junction/netstat）、pnpm 在 PATH、Node ≥ 20 |
+
 本包无构建脚本（无 prepare/postinstall），不会被 pnpm allowBuilds 拦截。
 
 ## HTTP API（全部在 `/dsh-safe-launch/` 前缀下）
@@ -40,6 +67,8 @@ dsh plugin --profile web add github:dHR-P/dsh-safe-launch
 | `POST /manifest/status` | `{}` | 清单基线 vs 当前：漂移报告 |
 | `POST /manifest/verify` | `{}` | 对**当前**清单组合做金丝雀验证，通过则纳入成功快照 |
 | `POST /manifest/ack` | `{}` | 不测试、手动确认接受当前清单（写入审计） |
+| `POST /setup/desktop-launcher` | `{}` | **同意接管**：生成桌面安全启动快捷方式 + 写入 AI 安装约定 |
+| `POST /setup/dismiss-onboarding` | `{}` | 拒绝接管：纯插件模式，不再提示 |
 | `POST /job` | `{id}` | 轮询长任务状态与日志 |
 
 长任务（test-candidate / install-plugin / update-plugins / manifest/verify）立即返回 `{ok, jobId}`，用 `/job` 轮询；同一时刻仅允许一个重任务。

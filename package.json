@@ -1,7 +1,7 @@
 {
   "name": "dsh-safe-launch",
-  "version": "0.1.2",
-  "description": "DSH 安全启动器插件：按上次成功配置启动；核心更新只提示、用户同意后才后台下载并金丝雀验证（新版核心×全部插件）；安装新插件前自动兼容性测试；看门狗监控绕过安装。Safe launcher for DeepSeek Harness: last-good boot config, consent-gated canary updates, compatibility-checked plugin installation, manifest watchdog.",
+  "version": "0.2.0",
+  "description": "DSH 安全启动器插件：首次使用与普通插件无异；激活后可授权接管——桌面安全启动快捷方式、AI 安装安全约定、按成功配置启动、核心升级同意制金丝雀验证、插件兼容性检查安装、清单看门狗。Safe launcher for DeepSeek Harness: normal-plugin first-run, optional consent-based takeover (desktop safe-start, AI conventions), consent-gated canary updates, compatibility-checked plugin installation, manifest watchdog.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
