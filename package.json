@@ -1,7 +1,7 @@
 {
     "name":  "dsh-safe-launch",
-    "version":  "0.4.0",
-    "description":  "DSH 瀹夊叏鍚姩鍣ㄦ彃浠讹細浠讳綍 dsh 鐗堟湰鍧囧彲瀹夎骞舵甯镐娇鐢ㄢ€斺€斿惎鍔ㄥ懡浠ゆ寜瀹夸富鐗堟湰鑷€傚簲鎹曡幏锛屽巻鍙茬増鏈叏閲忓吋瀹圭煩闃靛疄娴嬶紱棣栨浣跨敤涓庢櫘閫氭彃浠舵棤寮傦紱鎺堟潈鎺ョ銆佸悓鎰忓埗鏍稿績鍗囩骇閲戜笣闆€銆佹彃浠跺吋瀹规€ф鏌ュ畨瑁呫€佹竻鍗曠湅闂ㄧ嫍銆係afe launcher for DeepSeek Harness: works on any dsh version with adaptive boot-command capture, full historical-version compatibility matrix, normal-plugin first-run, consent-based takeover and updates.",
+    "version":  "0.4.1",
+    "description":  "DSH 鐎瑰鍙忛崥顖氬З閸ｃ劍褰冩禒璁圭窗娴犺缍?dsh 閻楀牊婀伴崸鍥у讲鐎瑰顥婇獮鑸殿劀鐢晲濞囬悽銊⑩偓鏂衡偓鏂挎儙閸斻劌鎳℃禒銈嗗瘻鐎瑰じ瀵岄悧鍫熸拱閼奉亪鈧倸绨查幑鏇″箯閿涘苯宸婚崣鑼閺堫剙鍙忛柌蹇撳悑鐎瑰湱鐓╅梼闈涚杽濞村绱辨＃鏍偧娴ｈ法鏁ゆ稉搴㈡珮闁碍褰冩禒鑸垫￥瀵偊绱遍幒鍫熸綀閹恒儳顓搁妴浣告倱閹板繐鍩楅弽绋跨妇閸楀洨楠囬柌鎴滅闂嗏偓閵嗕焦褰冩禒璺哄悑鐎硅鈧勵梾閺屻儱鐣ㄧ憗鍛偓浣圭閸楁洜婀呴梻銊у珝閵嗕總afe launcher for DeepSeek Harness: works on any dsh version with adaptive boot-command capture, full historical-version compatibility matrix, normal-plugin first-run, consent-based takeover and updates.",
     "type":  "module",
     "main":  "lib/index.js",
     "exports":  {
@@ -37,7 +37,7 @@
                                "tested":  "0.1.1-rc.2",
                                "minInclusive":  null,
                                "maxExclusive":  null,
-                               "note":  "閺堫亞鐓￠悧鍫熸拱姒涙顓婚崣顖滄暏楠炶泛鍑￠梼鍙夊Б閿涘牊绺哄ú璇茬磽鐢瓕鍤滈崝銊╂缁狙傜搐閻媴绱濈紒婵呯瑝瑜板崬鎼?dsh 閸氼垰濮╅敍澶涚幢娴犲懎缍嬮弻?dsh 閻楀牊婀扮痪璺ㄧ病 /self-test 鐎圭偞绁存稉宥呭悑鐎硅妞傞幍宥夆偓姘崇箖 maxExclusive 閹烘帡娅庣拠銉у殠"
+                               "note":  "闁哄牜浜為悡锟犳偋閸喐鎷卞娑欘焾椤撳宕ｉ婊勬殢妤犵偠娉涢崙锟犳⒓閸欏袘闁挎稑鐗婄缓鍝劽虹拠鑼＝閻㈩垱鐡曢崵婊堝礉閵娾晜顎栫紒鐙欏倻鎼愰柣顏嗗缁辨繄绱掑┑鍛憹鐟滄澘宕幖?dsh 闁告凹鍨版慨鈺呮晬婢舵稓骞㈠ù鐘叉噹缂嶅寮?dsh 闁绘鐗婂﹢鎵棯鐠恒劎鐥?/self-test 閻庡湱鍋炵粊瀛樼▔瀹ュ懎鎮戦悗纭咁潐濡炲倿骞嶅澶嗗亾濮樺磭绠?maxExclusive 闁圭儤甯″▍搴ｆ嫚閵壯冩疇"
                            }
             },
     "peerDependencies":  {
