@@ -36,10 +36,24 @@ dsh plugin --profile web add github:dHR-P/dsh-safe-launch
 | `POST /install-plugin` | `{source}` | **兼容性检查安装**：`npm 包名` 或 `github:owner/repo` |
 | `POST /update-plugins` | `{}` | 备份→更新→回归测试→提交或回滚 |
 | `POST /restart` | `{}` | 分离式安全重启（按 last-good 配置） |
-| `POST /rollback-config` | `{}` | 回滚到上一份不同备份 |
+| `POST /rollback-config` | `{}` | 回滚到上一份不同备份，并连带恢复 profile 清单快照 |
+| `POST /manifest/status` | `{}` | 清单基线 vs 当前：漂移报告 |
+| `POST /manifest/verify` | `{}` | 对**当前**清单组合做金丝雀验证，通过则纳入成功快照 |
+| `POST /manifest/ack` | `{}` | 不测试、手动确认接受当前清单（写入审计） |
 | `POST /job` | `{id}` | 轮询长任务状态与日志 |
 
-长任务（test-candidate / install-plugin / update-plugins）立即返回 `{ok, jobId}`，用 `/job` 轮询；同一时刻仅允许一个重任务。
+长任务（test-candidate / install-plugin / update-plugins / manifest/verify）立即返回 `{ok, jobId}`，用 `/job` 轮询；同一时刻仅允许一个重任务。
+
+## 清单看门狗（v0.1.1）
+
+**问题**：插件端点只是"正确的路"，拦不住有人（或 AI）直接对 profile 跑 `pnpm add` / `dsh plugin add` 绕过兼容性测试。
+
+**机制**：每个验证通过的状态都会把 profile 清单（package.json / pnpm-lock.yaml / cordis.patch.yml）快照到 `~/.dsh/safe-launch/profile-snapshots/`，并在 last-good.json 记录指纹（deps + bundles + 锁文件哈希）。插件运行期间每 5 秒对比指纹：
+
+- **自己的变更**（install-plugin / update-plugins / 晋升 / 回滚）：静默吸收；
+- **绕过的变更**：写入 `~/.dsh/safe-launch/audit.jsonl` 审计 + NOTICE 通知，并**自动**用 junction 隔离启动做兼容性验证——通过则把变更纳入新的成功快照（`watchdog-adopted`）；失败则大声告警并给出回滚指引（当前实例不受影响，但已明确告知下次启动有风险）。
+
+桌面 PowerShell 启动器同版升级：启动时提示清单漂移；启动失败时自动恢复最近成功清单快照并重试一次；`rollback-config` 连带恢复清单。
 
 ### 兼容性安装示例
 

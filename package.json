@@ -1,7 +1,7 @@
 {
   "name": "dsh-safe-launch",
-  "version": "0.1.0",
-  "description": "DSH 安全启动器插件：保存上次成功启动配置；检测核心/插件更新并先在新端口隔离金丝雀测试再采用；安装新插件前自动做兼容性启动测试。Safe launcher for DeepSeek Harness: last-good boot config, update canary testing, and compatibility-checked plugin installation.",
+  "version": "0.1.1",
+  "description": "DSH 安全启动器插件：保存上次成功启动配置；检测核心/插件更新并先在新端口隔离金丝雀测试再采用；安装新插件前自动做兼容性启动测试；看门狗监控绕过安装并自动验证/告警。Safe launcher for DeepSeek Harness: last-good boot config, update canary testing, compatibility-checked plugin installation, and a manifest watchdog.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
