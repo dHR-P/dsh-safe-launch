@@ -1,0 +1,41 @@
+{
+  "name": "dsh-safe-launch",
+  "version": "0.1.0",
+  "description": "DSH 安全启动器插件：保存上次成功启动配置；检测核心/插件更新并先在新端口隔离金丝雀测试再采用；安装新插件前自动做兼容性启动测试。Safe launcher for DeepSeek Harness: last-good boot config, update canary testing, and compatibility-checked plugin installation.",
+  "type": "module",
+  "main": "lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./restart-helper": "./lib/restart-helper.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "docs",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "safe-launch",
+    "updater",
+    "canary",
+    "compatibility"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "peerDependencies": {
+    "@deepseek-ai/dsh-host-webserver": "^0.1.1-rc.2"
+  },
+  "repository": "github:dHR-P/dsh-safe-launch",
+  "license": "MIT"
+}
