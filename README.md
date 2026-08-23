@@ -41,14 +41,26 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/setup/dismiss-onboarding -d '{}'
 同意后：桌面快捷方式按「上次成功配置」启动 DSH（90 秒未就绪自动恢复最近清单快照重试一次）；
 `~/.dsh/AGENTS.md` 写入接管约定，此后 AI 助手装插件一律走本插件的端点。
 
-## 支持的 DSH 版本
+## 支持的 DSH 版本与兼容性策略
 
-| 项目 | 要求 |
+| 项目 | 值 |
 |---|---|
-| 测试通过的 dsh 版本 | **0.1.1-rc.2**（npm latest，2026-08 发布线） |
-| 依赖的宿主接口 | `@deepseek-ai/dsh-host-webserver ^0.1.1-rc.2`（peerDependencies） |
-| 其他版本 | 未在更早版本上测试；bundle patch 机制自 dsh 0.1.x 起稳定，理论上 0.1.x 系列可用，欢迎反馈 |
-| 运行环境 | Windows（robocopy/junction/netstat）、pnpm 在 PATH、Node ≥ 20 |
+| 测试基线 | **0.1.1-rc.2**（npm latest） |
+| 支持范围 | `>= 0.1.1-rc.2`（无上界；每个新 dsh 发布后经 `/self-test` 验证再随插件更新确认） |
+| 宿主接口 | `@deepseek-ai/dsh-host-webserver >=0.1.1-rc.2`（peerDependencies 无上界，任何新版 dsh 都可正常安装本插件） |
+| 运行环境 | Windows、pnpm 在 PATH、Node ≥ 20 |
+
+### 三层兼容性防护
+
+1. **安装期**：peerDependencies 不设上界——旧版/新版 dsh 都能装进插件，不会因版本警告阻断；
+2. **激活期（运行时自动检测）**：插件启动时读取宿主 dsh 的真实版本，低于支持下限或超出已验证上限时
+   **进入休眠模式**——不注册任何功能路由、不启动看门狗、绝不拖垮 dsh 启动，仅在
+   `/dsh-safe-launch/*` 留一个说明端点并写 NOTICE 告知原因与升级路径；
+3. **发布期**：每次 dsh 出新版，用 `POST /self-test {"versions":["旧版本","新版本"]}` 对
+   「新版核心 × 当前全部插件」做金丝雀矩阵验证，通过后才更新插件的支持声明。
+
+> 兼容范围声明在 package.json 的 `dsh.compat` 字段（`minInclusive` / `maxExclusive` / `onMismatch: dormant`），
+> 与代码内门禁保持一致。`DSH_SL_ASSUME_DSH_VERSION` 环境变量可在测试中模拟任意宿主版本。
 
 本包无构建脚本（无 prepare/postinstall），不会被 pnpm allowBuilds 拦截。
 

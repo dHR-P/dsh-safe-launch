@@ -1,7 +1,7 @@
 {
   "name": "dsh-safe-launch",
-  "version": "0.2.0",
-  "description": "DSH 安全启动器插件：首次使用与普通插件无异；激活后可授权接管——桌面安全启动快捷方式、AI 安装安全约定、按成功配置启动、核心升级同意制金丝雀验证、插件兼容性检查安装、清单看门狗。Safe launcher for DeepSeek Harness: normal-plugin first-run, optional consent-based takeover (desktop safe-start, AI conventions), consent-gated canary updates, compatibility-checked plugin installation, manifest watchdog.",
+  "version": "0.2.1",
+  "description": "DSH 安全启动器插件：首次使用与普通插件无异；激活后可授权接管——桌面安全启动快捷方式、AI 安装安全约定、按成功配置启动、核心升级同意制金丝雀验证、插件兼容性检查安装、清单看门狗；运行时自动检测 dsh 版本，不兼容时安全休眠。Safe launcher for DeepSeek Harness: normal-plugin first-run, optional consent-based takeover, consent-gated canary updates, compatibility-checked plugin installation, manifest watchdog, runtime dsh-version gate with safe dormancy.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -31,10 +31,16 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "compat": {
+      "tested": "0.1.1-rc.2",
+      "minInclusive": "0.1.1-rc.2",
+      "maxExclusive": null,
+      "onMismatch": "dormant"
     }
   },
   "peerDependencies": {
-    "@deepseek-ai/dsh-host-webserver": "^0.1.1-rc.2"
+    "@deepseek-ai/dsh-host-webserver": ">=0.1.1-rc.2"
   },
   "repository": "github:dHR-P/dsh-safe-launch",
   "license": "MIT"
