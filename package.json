@@ -1,7 +1,7 @@
 {
   "name": "dsh-safe-launch",
-  "version": "0.2.1",
-  "description": "DSH 安全启动器插件：首次使用与普通插件无异；激活后可授权接管——桌面安全启动快捷方式、AI 安装安全约定、按成功配置启动、核心升级同意制金丝雀验证、插件兼容性检查安装、清单看门狗；运行时自动检测 dsh 版本，不兼容时安全休眠。Safe launcher for DeepSeek Harness: normal-plugin first-run, optional consent-based takeover, consent-gated canary updates, compatibility-checked plugin installation, manifest watchdog, runtime dsh-version gate with safe dormancy.",
+  "version": "0.2.2",
+  "description": "DSH 安全启动器插件：任何 dsh 版本均可安装使用（默认开放，未知旧版默认兼容）；首次使用与普通插件无异；激活后可授权接管——桌面安全启动快捷方式、AI 安装安全约定、按成功配置启动、核心升级同意制金丝雀验证、插件兼容性检查安装、清单看门狗。Safe launcher for DeepSeek Harness: works on any dsh version (default-open), normal-plugin first-run, optional consent-based takeover, consent-gated canary updates, compatibility-checked plugin installation, manifest watchdog.",
   "type": "module",
   "main": "lib/index.js",
   "exports": {
@@ -33,10 +33,11 @@
       "patch": "./cordis.patch.yml"
     },
     "compat": {
+      "policy": "default-open",
       "tested": "0.1.1-rc.2",
-      "minInclusive": "0.1.1-rc.2",
+      "minInclusive": null,
       "maxExclusive": null,
-      "onMismatch": "dormant"
+      "note": "未知版本默认可用并已防护（激活异常自动降级休眠，绝不影响 dsh 启动）；仅当某 dsh 版本线经 /self-test 实测不兼容时才通过 maxExclusive 排除该线"
     }
   },
   "peerDependencies": {

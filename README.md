@@ -41,26 +41,32 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/setup/dismiss-onboarding -d '{}'
 同意后：桌面快捷方式按「上次成功配置」启动 DSH（90 秒未就绪自动恢复最近清单快照重试一次）；
 `~/.dsh/AGENTS.md` 写入接管约定，此后 AI 助手装插件一律走本插件的端点。
 
-## 支持的 DSH 版本与兼容性策略
+## 支持的 DSH 版本与兼容性策略（v0.2.2 起：默认开放）
+
+**任何 dsh 版本都可以直接安装并正常使用本插件。** 用户的 dsh 与其已装插件本就自洽，
+本插件的宿主 API 面极小（`webServer.register` + logger），默认假定全版本兼容；
+激活代码全程 try/catch 防护——即使出现意外异常也只是插件自身降级，**绝不影响 dsh 启动**。
 
 | 项目 | 值 |
 |---|---|
-| 测试基线 | **0.1.1-rc.2**（npm latest） |
-| 支持范围 | `>= 0.1.1-rc.2`（无上界；每个新 dsh 发布后经 `/self-test` 验证再随插件更新确认） |
-| 宿主接口 | `@deepseek-ai/dsh-host-webserver >=0.1.1-rc.2`（peerDependencies 无上界，任何新版 dsh 都可正常安装本插件） |
+| 实测基线 | **0.1.1-rc.2**（npm latest；仅信息性声明，不作为门槛） |
+| 兼容模型 | 默认开放：未知旧版/新版都可用；只有实测确认不良的版本线才通过 `maxExclusive` 排除（休眠） |
+| 安装期 | peerDependencies 无上下界要求——任何 dsh 都装得进 |
 | 运行环境 | Windows、pnpm 在 PATH、Node ≥ 20 |
 
-### 三层兼容性防护
+### 三层防护（对用户透明）
 
-1. **安装期**：peerDependencies 不设上界——旧版/新版 dsh 都能装进插件，不会因版本警告阻断；
-2. **激活期（运行时自动检测）**：插件启动时读取宿主 dsh 的真实版本，低于支持下限或超出已验证上限时
-   **进入休眠模式**——不注册任何功能路由、不启动看门狗、绝不拖垮 dsh 启动，仅在
-   `/dsh-safe-launch/*` 留一个说明端点并写 NOTICE 告知原因与升级路径；
-3. **发布期**：每次 dsh 出新版，用 `POST /self-test {"versions":["旧版本","新版本"]}` 对
-   「新版核心 × 当前全部插件」做金丝雀矩阵验证，通过后才更新插件的支持声明。
+1. **安装期**：任何 dsh 版本可安装（peer 无上下界）；
+2. **激活期**：启动时读取宿主真实版本；激活全程异常防护，最坏情况插件自身降级休眠
+   （留说明端点 + NOTICE），dsh 启动永不受影响；
+3. **发布期**：每次 dsh 出新旧版本，用 `POST /self-test {"versions":[...]}` 对
+   「该版核心 × 当前全部插件」跑金丝雀矩阵——通过才随插件更新确认支持；发现某条
+   dsh 版本线真坏了，才在新插件里设置 `maxExclusive` 把那条线排除。
 
-> 兼容范围声明在 package.json 的 `dsh.compat` 字段（`minInclusive` / `maxExclusive` / `onMismatch: dormant`），
-> 与代码内门禁保持一致。`DSH_SL_ASSUME_DSH_VERSION` 环境变量可在测试中模拟任意宿主版本。
+> 声明位于 package.json 的 `dsh.compat`（policy: default-open）。`DSH_SL_ASSUME_DSH_VERSION`
+> 环境变量可模拟任意宿主版本做测试。金丝雀的静态预检（--dump-config）在旧版 dsh 上失败时
+> 自动跳过、以真实启动测试为准；官方 `dsh plugin add` 在旧版上不可用时自动回退到手动安装路径
+> （pnpm add + bundles 登记）。
 
 本包无构建脚本（无 prepare/postinstall），不会被 pnpm allowBuilds 拦截。
 
