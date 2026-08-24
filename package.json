@@ -8,6 +8,7 @@
                   "lib",
                   "docs",
                   "cordis.patch.yml",
+                  "tools",
                   "README.md",
                   "LICENSE"
               ],
