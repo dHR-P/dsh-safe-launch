@@ -192,6 +192,25 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/job -d '{"id":"ab12cd34"}'
 └─ logs\               任务与金丝雀日志
 ```
 
+## 版本命名规则
+
+本插件版本号 = `<适配的dsh版本>-v<插件自身版本>`，例如：
+
+    0.1.1-rc.2-v0.5.0
+    └──┬──┘ └─┬─┘
+    适配的dsh版本  插件自身版本
+
+一眼即可看出当前插件最新适配的 dsh 版本。规则要点：
+
+- 前缀与所适配 dsh 版本的名称**完全一致**（含 prerelease 写法，如 `rc.2`）；
+- `-v` 后是插件自身语义版本，随插件功能迭代递增，与 dsh 版本无关；
+- 同一 dsh 版本下发布多次时，只递增自身版本（`...-v0.5.1` > `...-v0.5.0`）。
+
+改版本用助手脚本（同步改写 package.json 与 lib/index.js 两处）：
+
+    node tools/set-version.mjs <dshVersion> [pluginOwnVersion]
+    node tools/set-version.mjs 0.1.1-rc.3          # 自身版本沿用当前值
+    node tools/set-version.mjs 0.1.1-rc.3 0.6.0    # 同时提升自身版本
 ## 发布合规说明（dsh 插件要求对照）
 
 - `package.json` 声明 `dsh.bundle.patch` 指向随包 `cordis.patch.yml`（层叠补丁插入服务行）；
