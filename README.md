@@ -1,6 +1,6 @@
 # dsh-safe-launch
 
-**DSH 安全启动器插件** —— 把「上次成功启动的配置、更新金丝雀测试、插件兼容性检查安装」装进 DeepSeek Harness 本身。
+**DSH 安全启动器插件** —— 把「上次成功启动的配置、更新试运行测试、插件兼容性检查安装」装进 DeepSeek Harness 本身。
 
 English: a DSH plugin providing last-good boot config, canary-tested updates, and **compatibility-checked plugin installation** — try any new plugin in an isolated boot on a spare port before it ever touches your live instance.
 
@@ -9,9 +9,9 @@ English: a DSH plugin providing last-good boot config, canary-tested updates, an
 | 能力 | 说明 |
 |---|---|
 | 成功启动配置 | 所有操作基于 `~/.dsh/safe-launch/last-good.json`（与桌面 PowerShell 安全启动器共享），配置变更前自动备份 |
-| 核心更新金丝雀 | 新版 dsh 先装入独立 `runtime/<版本>`，用隔离 HOME + 随机端口启动测试，通过才写入新配置；失败自动丢弃候选 |
+| 核心更新试运行 | 新版 dsh 先装入独立 `runtime/<版本>`，用隔离 HOME + 随机端口启动测试，通过才写入新配置；失败自动丢弃候选 |
 | **插件兼容性检查安装** | 安装任何新插件前：复制一份 profile 到临时目录 → 在隔离环境装插件 → 用当前成功配置在新端口启动测试 → 通过才经官方 `dsh plugin add` 装入真实 profile；失败只提示，实例零影响 |
-| 插件更新回归 | 插件批量更新同样先备份清单 → 更新 → 金丝雀回归 → 通过提交 / 失败回滚 |
+| 插件更新回归 | 插件批量更新同样先备份清单 → 更新 → 试运行回归 → 通过提交 / 失败回滚 |
 | 安全重启 | 分离式 helper 进程接管「停旧-起新-验活」，父进程无需自尽 |
 
 ## 安装与首次使用（v0.2.0 起，与普通插件无异）
@@ -24,7 +24,7 @@ dsh plugin --profile web add github:dHR-P/dsh-safe-launch
 插件会自动从正在运行的实例引导出「成功启动配置」，不需要任何额外步骤。
 
 重启后插件处于 `pending` 引导状态：`/status` 会返回 `onboarding:{needed:true}`，
-日志提示一次。此时它是纯增强插件（看门狗/升级提示/兼容性安装全部可用）。
+日志提示一次。此时它是纯增强插件（自动巡检/升级提示/兼容性安装全部可用）。
 
 ### 授权接管（可选，需用户明确同意）
 
@@ -60,11 +60,11 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/setup/dismiss-onboarding -d '{}'
 2. **激活期**：启动时读取宿主真实版本；激活全程异常防护，最坏情况插件自身降级休眠
    （留说明端点 + NOTICE），dsh 启动永不受影响；
 3. **发布期**：每次 dsh 出新旧版本，用 `POST /self-test {"versions":[...]}` 对
-   「该版核心 × 当前全部插件」跑金丝雀矩阵——通过才随插件更新确认支持；发现某条
+   「该版核心 × 当前全部插件」跑试运行矩阵——通过才随插件更新确认支持；发现某条
    dsh 版本线真坏了，才在新插件里设置 `maxExclusive` 把那条线排除。
 
 > 声明位于 package.json 的 `dsh.compat`（policy: default-open）。`DSH_SL_ASSUME_DSH_VERSION`
-> 环境变量可模拟任意宿主版本做测试。金丝雀的静态预检（--dump-config）在旧版 dsh 上失败时
+> 环境变量可模拟任意宿主版本做测试。试运行的静态预检（--dump-config）在旧版 dsh 上失败时
 > 自动跳过、以真实启动测试为准；官方 `dsh plugin add` 在旧版上不可用时自动回退到手动安装路径
 > （pnpm add + bundles 登记）。
 
@@ -72,7 +72,7 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/setup/dismiss-onboarding -d '{}'
 
 ## 历史版本兼容性矩阵（v0.3.0 实测）
 
-对 npm 上**全部可安装**的 dsh 历史版本逐一做了「该版核心 × 本插件」激活金丝雀
+对 npm 上**全部可安装**的 dsh 历史版本逐一做了「该版核心 × 本插件」激活试运行
 （隔离环境、随机端口、HTTP 探活、插件路由响应验证）。工具与原始数据见
 `tools/matrix-test.mjs` 与 `tools/matrix/`。
 
@@ -96,20 +96,29 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/setup/dismiss-onboarding -d '{}'
 - **零配置捕获**：插件进程自己的 `process.argv` 就是当前 dsh 的真实启动参数，
   引导时把实际主机/端口替换成 `{host}`/`{port}` 占位符存入 `last-good.json` 的
   `bootArgs` 模板——任何版本的正确形状都会被自动记录；
-- **全链路使用模板**：重启助手、桌面启动器、核心升级金丝雀、插件安装金丝雀全部
+- **全链路使用模板**：重启助手、桌面启动器、核心升级试运行、插件安装试运行全部
   从同一模板解析启动参数；
 - **手动修正入口**：`POST /boot-shape/set {"args":["--profile","web","--host","{host}","--port","{port}"]}`
-  会先做隔离金丝雀验证再保存；`GET /boot-shape/current` 查看当前形状。
+  会先做隔离试运行验证再保存；`GET /boot-shape/current` 查看当前形状。
 
-## 配置页面（控制面板）与接管范围（v0.4）
+## 设置入口与启动诊断（v0.5.1）
 
-**控制面板 URL：`http://127.0.0.1:3080/dsh-safe-launch/panel`**（端口按你的实例）。自包含网页，
+安装后在 **设置 → 安全启动** 分区中管理（与「插件」平级，无需单独网页）：
+
+- **状态一览**：插件版本 / dsh 版本 / 端口 / 桌面接管情况；
+- **不兼容插件列表**：上次启动诊断失败时被排除的差异项，测试通过后自动启用；
+- **关网页即关服开关**、重启 DSH、关闭服务器按钮。
+
+桌面「DSH 安全启动」快捷方式的启动流程：弹出小窗显示「正在诊断兼容性…」→ 按当前配置在 3080 直接启动 → 成功即用；失败自动回退到上一次成功版本并重新启动，结果同时写入设置卡片。
+## 配置页面（设置页）与接管范围（v0.4）
+
+**设置页 URL：`http://127.0.0.1:3080/dsh-safe-launch/panel`**（端口按你的实例）。自包含网页，
 不依赖 dsh 前端内部机制，任何 dsh 版本可用。页面上可见、可操作：
 
 - **引导卡片**：安装后首次打开时询问「是否在桌面创建安全启动器并接管启动」——同意即一键创建，拒绝则保持纯插件模式；
 - **启动器状态**：是否已接管、快捷方式路径、最近一次正常启动记录；
 - **更新提示卡**：发现新版 dsh 核心 / 插件有新版本时高亮显示，按钮触发「随机端口隔离环境兼容性测试」，测试通过后再询问是否应用——全程不需要命令行；
-- **看门狗卡片**：任何绕过安全启动器发生的 profile 清单变动（包括用其他工具装的插件）都会被拦截提示，一键金丝雀验证：通过自动采纳、失败自动回滚——这就是"装任何新插件都由本插件接管"的落地机制；
+- **自动巡检卡片**：任何绕过安全启动器发生的 profile 清单变动（包括用其他工具装的插件）都会被拦截提示，一键试运行验证：通过自动采纳、失败自动回滚——这就是"装任何新插件都由本插件接管"的落地机制；
 - **已装插件清单** 与 **高级操作**（检测更新 / 重启 DSH 应用变更 / 回滚上次配置）。
 
 插件本体出现在 dsh 的插件清单（loader entries 投影）中；本插件的描述、支持版本见上表。
@@ -120,13 +129,13 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/setup/dismiss-onboarding -d '{}'
 | `GET/POST /ping` | - | 存活探针 |
 | `POST /status` | `{network?:bool}` | 配置摘要；`network:true` 时附带最新版本与可更新插件 |
 | `POST /check` | `{}` | 检测核心/插件更新，只提示不改动 |
-| `POST /test-candidate` | `{version?}` | 安装指定版本(默认 npm 最新)→金丝雀→晋升配置 |
+| `POST /test-candidate` | `{version?}` | 安装指定版本(默认 npm 最新)→试运行→晋升配置 |
 | `POST /install-plugin` | `{source}` | **兼容性检查安装**：`npm 包名` 或 `github:owner/repo` |
 | `POST /update-plugins` | `{}` | 备份→更新→回归测试→提交或回滚 |
 | `POST /restart` | `{}` | 分离式安全重启（按 last-good 配置） |
 | `POST /rollback-config` | `{}` | 回滚到上一份不同备份，并连带恢复 profile 清单快照 |
 | `POST /manifest/status` | `{}` | 清单基线 vs 当前：漂移报告 |
-| `POST /manifest/verify` | `{}` | 对**当前**清单组合做金丝雀验证，通过则纳入成功快照 |
+| `POST /manifest/verify` | `{}` | 对**当前**清单组合做试运行验证，通过则纳入成功快照 |
 | `POST /manifest/ack` | `{}` | 不测试、手动确认接受当前清单（写入审计） |
 | `POST /setup/desktop-launcher` | `{}` | **同意接管**：生成桌面安全启动快捷方式 + 写入 AI 安装约定 |
 | `POST /setup/dismiss-onboarding` | `{}` | 拒绝接管：纯插件模式，不再提示 |
@@ -140,13 +149,13 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/setup/dismiss-onboarding -d '{}'
 2. **提示**：启动约 30 秒后后台查一次 npm（环境变量 `DSH_SL_NO_AUTO_CHECK=1` 可关闭），
    发现有新版本只写 NOTICE + 日志，并把 `coreUpdatePending` 暴露在 `/status`——不做任何下载；
 3. **同意后测试**：调用 `POST /test-candidate {}` 才开始后台下载到独立 `runtime/<版本>`，
-   并用 junction 隔离启动做金丝雀验证——**新版核心 × 当前全部插件的真实组合**
+   并用 junction 隔离启动做试运行验证——**新版核心 × 当前全部插件的真实组合**
    （静态预检 + HTTP 就绪 + 浸泡 + 进程身份 + 致命错误扫描），当前实例全程无感；
 4. **采用**：通过才写入新配置；失败自动丢弃候选并保持旧配置。是否立即重启始终由用户决定。
 
 PS 桌面启动器同规则：检测到新版本先弹确认框征得同意，同意后才下载测试。
 
-## 清单看门狗（v0.1.1）
+## 清单自动巡检（v0.1.1）
 
 **问题**：插件端点只是"正确的路"，拦不住有人（或 AI）直接对 profile 跑 `pnpm add` / `dsh plugin add` 绕过兼容性测试。
 
@@ -189,7 +198,7 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/job -d '{"id":"ab12cd34"}'
 ├─ backups\            配置历史（回滚用）
 ├─ plugin-backup-*\    插件操作前的 profile 清单快照
 ├─ NOTICE.txt          操作通知历史
-└─ logs\               任务与金丝雀日志
+└─ logs\               任务与试运行日志
 ```
 
 ## 版本命名规则
