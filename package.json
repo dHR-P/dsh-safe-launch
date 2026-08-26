@@ -1,7 +1,7 @@
 {
     "name":  "dsh-safe-launch",
     "version":  "0.1.1-rc.2-v0.5.0",
-    "description":  "DSH 鐎瑰鍙忛崥顖氬З閸ｃ劍褰冩禒璁圭窗娴犺缍?dsh 閻楀牊婀伴崸鍥у讲鐎瑰顥婇獮鑸殿劀鐢晲濞囬悽銊⑩偓鏂衡偓鏂挎儙閸斻劌鎳℃禒銈嗗瘻鐎瑰じ瀵岄悧鍫熸拱閼奉亪鈧倸绨查幑鏇″箯閿涘苯宸婚崣鑼閺堫剙鍙忛柌蹇撳悑鐎瑰湱鐓╅梼闈涚杽濞村绱辨＃鏍偧娴ｈ法鏁ゆ稉搴㈡珮闁碍褰冩禒鑸垫￥瀵偊绱遍幒鍫熸綀閹恒儳顓搁妴浣告倱閹板繐鍩楅弽绋跨妇閸楀洨楠囬柌鎴滅闂嗏偓閵嗕焦褰冩禒璺哄悑鐎硅鈧勵梾閺屻儱鐣ㄧ憗鍛偓浣圭閸楁洜婀呴梻銊у珝閵嗕總afe launcher for DeepSeek Harness: works on any dsh version with adaptive boot-command capture, full historical-version compatibility matrix, normal-plugin first-run, consent-based takeover and updates.",
+    "description":  "DSH 安全启动器：按上次成功配置启动、更新先试运行再采纳、插件先兼容性检查再安装。A DSH plugin for last-good boot config, canary-tested updates, and compatibility-checked plugin installation.",
     "type":  "module",
     "main":  "lib/index.js",
     "files":  [
@@ -33,7 +33,7 @@
                                "tested":  "0.1.1-rc.2",
                                "minInclusive":  null,
                                "maxExclusive":  null,
-                               "note":  "闁哄牜浜為悡锟犳偋閸喐鎷卞娑欘焾椤撳宕ｉ婊勬殢妤犵偠娉涢崙锟犳⒓閸欏袘闁挎稑鐗婄缓鍝劽虹拠鑼＝閻㈩垱鐡曢崵婊堝礉閵娾晜顎栫紒鐙欏倻鎼愰柣顏嗗缁辨繄绱掑┑鍛憹鐟滄澘宕幖?dsh 闁告凹鍨版慨鈺呮晬婢舵稓骞㈠ù鐘叉噹缂嶅寮?dsh 闁绘鐗婂﹢鎵棯鐠恒劎鐥?/self-test 閻庡湱鍋炵粊瀛樼▔瀹ュ懎鎮戦悗纭咁潐濡炲倿骞嶅澶嗗亾濮樺磭绠?maxExclusive 闁圭儤甯″▍搴ｆ嫚閵壯冩疇"
+                               "note":  "默认开放兼容策略：任意 dsh 版本可安装并正常使用；仅当实测确认某版本线存在不良交互时，才通过 maxExclusive 排除该版本线。发布/支持声明前用 POST /self-test 对目标版本做试运行矩阵验证。"
                            },
                 "client":  {
                                "inject":  [
