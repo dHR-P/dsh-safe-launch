@@ -227,6 +227,14 @@ curl -s http://127.0.0.1:3080/dsh-safe-launch/job -d '{"id":"ab12cd34"}'
 - 导出 cordis 标准 `apply(ctx)` + `inject`（仅依赖宿主 `webServer` 服务）；
 - 纯 ESM、`exports` 映射完整、`files` 白名单发布、无构建脚本、MIT 协议、keywords 含 `dsh-plugin`。
 
+## 参考
+
+本插件的设计与实现参考了以下项目与机制，致谢：
+
+- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)（`@deepseek-ai/dsh` 系列包）— 宿主插件机制：`dsh plugin add` bundles reconcile 流程、`--dump-config` 静态预检、`cordis.patch.yml` 层叠补丁、设置槽位系统（`settings.section` 分区、`settings.plugin.item` keyed 槽位，参照官方 `settings-general` 分区范例）、client-modules 的 `__ModuleLoader__` bundle 契约
+- 前身项目 **dsh-launcher**（本仓库的原始设计基线，2026-08 归档终止）— last-good 成功配置、更新先试运行再采纳、插件兼容性检查后再安装等核心思路源自该插件
+- 配套桌面 PowerShell 安全启动器（与插件共享 `~/.dsh/safe-launch/last-good.json` 状态与回滚语义）
+
 ## License
 
 MIT © 2025 dHR-P
