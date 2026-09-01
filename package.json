@@ -1,6 +1,6 @@
 {
     "name":  "dsh-safe-launch",
-    "version":  "0.1.1-rc.2-v0.5.1",
+    "version":  "0.1.2-alpha.3-v0.5.1",
     "description":  "DSH 安全启动器：按上次成功配置启动、更新先试运行再采纳、插件先兼容性检查再安装。A DSH plugin for last-good boot config, canary-tested updates, and compatibility-checked plugin installation.",
     "type":  "module",
     "main":  "lib/index.js",
@@ -30,7 +30,7 @@
                            },
                 "compat":  {
                                "policy":  "default-open",
-                               "tested":  "0.1.1-rc.2",
+                               "tested":  "0.1.2-alpha.3",
                                "minInclusive":  null,
                                "maxExclusive":  null,
                                "note":  "默认开放兼容策略：任意 dsh 版本可安装并正常使用；仅当实测确认某版本线存在不良交互时，才通过 maxExclusive 排除该版本线。发布/支持声明前用 POST /self-test 对目标版本做试运行矩阵验证。"
